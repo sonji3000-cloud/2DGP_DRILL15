@@ -18,8 +18,7 @@ ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 
 MIN_X, MAX_X = 800, 1600  # 좀비가 오가는 구간
-ZOMBIE_HP = 2
-ZOMBIE_SIZE = 200
+
 
 class Zombie:
     images = None
@@ -35,6 +34,9 @@ class Zombie:
         self.x, self.y = random.randint(MIN_X, MAX_X), 150
         self.frame = random.randint(0, 9)
         self.dir = random.choice([-1, 1])
+        self.size = 200
+        self.hp = 2
+        self.bound = 100
 
     def update(self):
         dt = game_framework.frame_time
@@ -49,20 +51,19 @@ class Zombie:
     def draw(self):
         image = Zombie.images['Walk'][int(self.frame)]
         if self.dir < 0:
-            image.composite_draw(0, 'h', self.x, self.y, ZOMBIE_SIZE, ZOMBIE_SIZE)
+            image.composite_draw(0, 'h', self.x, self.y, self.size, self.size)
         else:
-            image.draw(self.x, self.y, ZOMBIE_SIZE, ZOMBIE_SIZE)
+            image.draw(self.x, self.y, self.size, self.size)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 100, self.y - 100, self.x + 100, self.y + 100
+        return self.x - self.bound, self.y - self.bound, self.x + self.bound, self.y + self.bound
 
 
     def handle_collision(self, group, other):
         if group == 'zombie:ball':
+            self.hp -= 1
+            self.size -= 100
+            self.bound -= 50
             print ("hit")
-            #if ZOMBIE_HP == 2 :
-            #    ZOMBIE_HP -= 1
-            #    ZOMBIE_SIZE -= 100S
-            #elif ZOMBIE_HP == 1:
-            #    game_world.remove_object(self)
+            print (self.hp)
